@@ -5,11 +5,15 @@ compatibility_date = "2024-09-25"
 [vars]
 # Non-secret vars. Secrets (service role keys, FAL_KEY,
 # MEDIA_SIGNING_SECRET) are set with `wrangler secret put <NAME>` and
-# must never be committed. Update these two for staging/production
-# (e.g. via a `[env.production]` block) before deploying beyond
-# local dev.
-APP_ORIGIN = "http://localhost:5173"
-PUBLIC_MEDIA_BASE_URL = "http://localhost:8787"
+# must never be committed.
+#
+# Live production values -- note the deployed Worker's actual name
+# (and therefore its *.workers.dev host) is "classygem-photobooth",
+# not "classygem-api" from `name` above: Cloudflare's git-connected
+# Workers Builds used the dashboard "Project name" for the first
+# deploy rather than this file's `name` field.
+APP_ORIGIN = "https://classygem-photobooth.pages.dev"
+PUBLIC_MEDIA_BASE_URL = "https://classygem-photobooth.infomomtelo.workers.dev"
 
 [[r2_buckets]]
 binding = "MEDIA_BUCKET"
