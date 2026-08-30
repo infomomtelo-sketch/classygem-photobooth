@@ -8,14 +8,28 @@ export function DashboardPage({
   onDesign,
   onOpenPersona,
   onOpenLibrary,
+  onOpenCredits,
 }: {
   onDesign: () => void;
   onOpenPersona: (personaId: string) => void;
   onOpenLibrary: () => void;
+  onOpenCredits: () => void;
 }) {
   const { user, signOut } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
   const [personas, setPersonas] = useState<Persona[]>([]);
+  const [checkoutNotice, setCheckoutNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    if (checkout) {
+      setCheckoutNotice(
+        checkout === 'success' ? 'Payment successful — crediting your account now.' : 'Checkout cancelled.'
+      );
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -34,9 +48,11 @@ export function DashboardPage({
     <div className="dashboard-screen">
       <h1>Classygem</h1>
       <p>Signed in as {user?.email}</p>
+      {checkoutNotice && <p className="auth-notice">{checkoutNotice}</p>}
       <p>Credits: {balance === null ? '…' : balance}</p>
       <button onClick={onDesign}>Design a new model</button>
       <button onClick={onOpenLibrary}>Video Library</button>
+      <button onClick={onOpenCredits}>Buy Credits</button>
 
       <div className="persona-list">
         {personas.length === 0 && <p className="dashboard-note">No models yet.</p>}

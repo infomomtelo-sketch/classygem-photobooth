@@ -8,6 +8,7 @@ import { motionPresetsRoute } from './routes/motionPresets';
 import { personasRoute } from './routes/personas';
 import { stillsRoute } from './routes/stills';
 import { videosRoute } from './routes/videos';
+import { billingRoute } from './routes/billing';
 import { jobsRoute } from './routes/jobs';
 import { mediaRoute } from './routes/media';
 
@@ -38,6 +39,7 @@ app.route('/', motionPresetsRoute);
 app.route('/', personasRoute);
 app.route('/', stillsRoute);
 app.route('/', videosRoute);
+app.route('/', billingRoute);
 app.route('/', jobsRoute);
 app.route('/', mediaRoute);
 

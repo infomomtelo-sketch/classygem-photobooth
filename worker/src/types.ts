@@ -8,6 +8,8 @@ export interface Env {
   APP_ORIGIN: string;
   PUBLIC_MEDIA_BASE_URL: string;
   MEDIA_SIGNING_SECRET: string;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
 }
 
 export interface AuthedUser {
