@@ -16,6 +16,45 @@ export const videosRoute = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 videosRoute.use('*', requireAuth);
 
+interface VideoWithPersonaRow {
+  id: string;
+  persona_id: string;
+  upscale_id: string;
+  motion_preset: string;
+  status: string;
+  r2_key: string | null;
+  created_at: string;
+  personas: { user_id: string; age_range: string; style_vibe: string | null };
+}
+
+// The library: every finished video across all of the user's
+// personas, newest first. Not scoped to one persona -- the spec
+// describes this as one gallery, not a per-model view.
+videosRoute.get('/videos', async (c) => {
+  const user = c.get('user');
+  const dmemz = getDmemzAdmin(c.env);
+  const { data, error } = await dmemz
+    .from('videos')
+    .select('*, personas!inner(user_id, age_range, style_vibe)')
+    .eq('personas.user_id', user.id)
+    .eq('status', 'ready')
+    .order('created_at', { ascending: false });
+  if (error) return c.json({ error: 'Failed to list videos' }, 500);
+
+  const rows = (data ?? []) as VideoWithPersonaRow[];
+  const videos = await Promise.all(
+    rows.map(async (row) => {
+      const { personas, ...video } = row;
+      return {
+        ...video,
+        personaLabel: `${personas.age_range} · ${personas.style_vibe ?? 'no vibe set'}`,
+        videoUrl: await mintMediaUrl(c, 'videos', video.id),
+      };
+    })
+  );
+  return c.json({ videos });
+});
+
 const animateSchema = z.object({ motionPreset: z.enum(MOTION_PRESET_IDS) });
 
 // Animation is image-conditioned -- the still already carries the

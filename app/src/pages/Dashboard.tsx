@@ -7,9 +7,11 @@ import type { Persona } from '../types';
 export function DashboardPage({
   onDesign,
   onOpenPersona,
+  onOpenLibrary,
 }: {
   onDesign: () => void;
   onOpenPersona: (personaId: string) => void;
+  onOpenLibrary: () => void;
 }) {
   const { user, signOut } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
@@ -34,6 +36,7 @@ export function DashboardPage({
       <p>Signed in as {user?.email}</p>
       <p>Credits: {balance === null ? '…' : balance}</p>
       <button onClick={onDesign}>Design a new model</button>
+      <button onClick={onOpenLibrary}>Video Library</button>
 
       <div className="persona-list">
         {personas.length === 0 && <p className="dashboard-note">No models yet.</p>}

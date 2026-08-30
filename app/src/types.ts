@@ -72,6 +72,15 @@ export interface Video {
   videoUrl: string;
 }
 
+export interface LibraryVideo {
+  id: string;
+  persona_id: string;
+  motion_preset: string;
+  created_at: string;
+  personaLabel: string;
+  videoUrl: string;
+}
+
 export interface GenerationJob {
   id: string;
   status: 'queued' | 'running' | 'succeeded' | 'failed';

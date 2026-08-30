@@ -50,13 +50,19 @@ mediaRoute.get('/media/upscales/:id', async (c) => {
   return serveMediaObject(c.env, data.r2_key);
 });
 
+// Always sent as an attachment: videos are the app's terminal output
+// ("download to post manually" -- no in-app posting or scheduling),
+// and a <video> element's own fetch ignores Content-Disposition when
+// rendering inline, so this doesn't break the Phase 4 preview player.
 mediaRoute.get('/media/videos/:id', async (c) => {
   const id = c.req.param('id');
   if (!(await isValidToken(c, 'videos', id))) {
     return c.json({ error: 'Invalid or expired media token' }, 403);
   }
   const dmemz = getDmemzAdmin(c.env);
-  const { data } = await dmemz.from('videos').select('r2_key').eq('id', id).single();
+  const { data } = await dmemz.from('videos').select('r2_key, motion_preset').eq('id', id).single();
   if (!data?.r2_key) return c.json({ error: 'Not found' }, 404);
-  return serveMediaObject(c.env, data.r2_key);
+  return serveMediaObject(c.env, data.r2_key, {
+    contentDisposition: `attachment; filename="classygem-${data.motion_preset}-${id.slice(0, 8)}.mp4"`,
+  });
 });

@@ -246,3 +246,50 @@ body {
   margin: 1rem auto;
   border-radius: 4px;
 }
+
+.library-screen {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.library-card {
+  border: 1px solid #cfc4b4;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.library-card video {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  display: block;
+  background: #000;
+}
+
+.library-meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.6rem;
+  font-size: 0.75rem;
+}
+
+.library-download {
+  display: block;
+  text-align: center;
+  padding: 0.5rem;
+  background: var(--ink);
+  color: var(--paper);
+  text-decoration: none;
+  font-size: 0.8rem;
+}

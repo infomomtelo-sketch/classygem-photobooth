@@ -4,8 +4,9 @@ import { AuthPage } from './pages/Auth';
 import { DashboardPage } from './pages/Dashboard';
 import { ModelDesignerPage } from './pages/ModelDesigner';
 import { PersonaStudioPage } from './pages/PersonaStudio';
+import { VideoLibraryPage } from './pages/VideoLibrary';
 
-type View = { name: 'dashboard' } | { name: 'designer' } | { name: 'studio'; personaId: string };
+type View = { name: 'dashboard' } | { name: 'designer' } | { name: 'studio'; personaId: string } | { name: 'library' };
 
 export function App() {
   const { session, loading } = useAuth();
@@ -20,10 +21,14 @@ export function App() {
   if (view.name === 'studio') {
     return <PersonaStudioPage personaId={view.personaId} onBack={() => setView({ name: 'dashboard' })} />;
   }
+  if (view.name === 'library') {
+    return <VideoLibraryPage onBack={() => setView({ name: 'dashboard' })} />;
+  }
   return (
     <DashboardPage
       onDesign={() => setView({ name: 'designer' })}
       onOpenPersona={(personaId) => setView({ name: 'studio', personaId })}
+      onOpenLibrary={() => setView({ name: 'library' })}
     />
   );
 }
