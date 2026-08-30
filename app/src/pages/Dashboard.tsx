@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabaseClient';
+import { apiGet } from '../lib/apiClient';
+import type { Persona } from '../types';
 
-export function DashboardPage() {
+export function DashboardPage({ onDesign }: { onDesign: () => void }) {
   const { user, signOut } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
+  const [personas, setPersonas] = useState<Persona[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -14,6 +17,9 @@ export function DashboardPage() {
       .eq('user_id', user.id)
       .single()
       .then(({ data }) => setBalance(data?.balance ?? 0));
+    apiGet<{ personas: Persona[] }>('/personas')
+      .then((r) => setPersonas(r.personas))
+      .catch(() => {});
   }, [user]);
 
   return (
@@ -21,7 +27,20 @@ export function DashboardPage() {
       <h1>Classygem</h1>
       <p>Signed in as {user?.email}</p>
       <p>Credits: {balance === null ? '…' : balance}</p>
-      <p className="dashboard-note">The model designer arrives in Phase 2.</p>
+      <button onClick={onDesign}>Design a new model</button>
+
+      <div className="persona-list">
+        {personas.length === 0 && <p className="dashboard-note">No models yet.</p>}
+        {personas.map((p) => (
+          <div key={p.id} className="persona-row">
+            <span>
+              {p.age_range} · {p.style_vibe ?? 'no vibe set'}
+            </span>
+            <span className="persona-status">{p.status}</span>
+          </div>
+        ))}
+      </div>
+
       <button onClick={signOut}>Sign out</button>
     </div>
   );

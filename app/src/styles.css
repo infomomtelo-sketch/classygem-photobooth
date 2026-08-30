@@ -95,3 +95,117 @@ body {
   color: #6b6259;
   font-style: italic;
 }
+
+.persona-list {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.persona-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cfc4b4;
+  font-size: 0.85rem;
+}
+
+.persona-status {
+  color: #6b6259;
+  font-style: italic;
+}
+
+.designer-screen {
+  min-height: 100vh;
+  padding: 2rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.designer-loading {
+  padding: 2rem;
+  text-align: center;
+  font-style: italic;
+  color: #6b6259;
+}
+
+.designer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.designer-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.designer-form select,
+.designer-form textarea {
+  font-family: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #cfc4b4;
+  background: #fff;
+}
+
+.designer-form button[type='submit'] {
+  padding: 0.6rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  cursor: pointer;
+}
+
+.designer-status {
+  text-align: center;
+  font-style: italic;
+  color: #6b6259;
+  margin-top: 2rem;
+}
+
+.candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.candidate-card {
+  padding: 0;
+  border: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.candidate-card img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.candidate-card.selected {
+  border-color: var(--ink);
+}
+
+.designer-primary {
+  grid-column: 1 / -1;
+  padding: 0.6rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+
+.designer-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
