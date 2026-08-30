@@ -3,7 +3,9 @@ import type { Env, Variables } from './types';
 import { healthRoute } from './routes/health';
 import { creditsRoute } from './routes/credits';
 import { optionsRoute } from './routes/options';
+import { backgroundsRoute } from './routes/backgrounds';
 import { personasRoute } from './routes/personas';
+import { stillsRoute } from './routes/stills';
 import { jobsRoute } from './routes/jobs';
 import { mediaRoute } from './routes/media';
 
@@ -29,7 +31,9 @@ app.use('*', async (c, next) => {
 app.route('/', healthRoute);
 app.route('/', creditsRoute);
 app.route('/', optionsRoute);
+app.route('/', backgroundsRoute);
 app.route('/', personasRoute);
+app.route('/', stillsRoute);
 app.route('/', jobsRoute);
 app.route('/', mediaRoute);
 

@@ -32,6 +32,31 @@ export interface Candidate {
   imageUrl: string;
 }
 
+export interface BackgroundPreset {
+  id: string;
+  slug: string;
+  label: string;
+  prompt_fragment: string;
+}
+
+export interface Still {
+  id: string;
+  persona_id: string;
+  background_preset_id: string | null;
+  custom_background_prompt: string | null;
+  outfit_prompt: string;
+  status: string;
+  moderation_status: string;
+  imageUrl: string | null;
+}
+
+export interface Upscale {
+  id: string;
+  still_id: string;
+  status: string;
+  imageUrl: string;
+}
+
 export interface GenerationJob {
   id: string;
   status: 'queued' | 'running' | 'succeeded' | 'failed';
@@ -42,5 +67,7 @@ export interface JobPollResult {
   job: GenerationJob;
   candidates?: Candidate[];
   persona?: Persona;
+  stills?: Still[];
+  upscale?: Upscale;
   error?: string;
 }

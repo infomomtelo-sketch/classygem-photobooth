@@ -45,6 +45,7 @@ export interface GenerationJobRow {
   status: string;
   credit_cost: number | null;
   error: string | null;
+  params: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }

@@ -1,4 +1,4 @@
-import { Hono, type Context } from 'hono';
+import { Hono } from 'hono';
 import { z } from 'zod';
 import type { Env, PersonaRow, Variables } from '../types';
 import { requireAuth } from '../middleware/auth';
@@ -11,11 +11,10 @@ import { buildSafePrompt } from '../guardrails/safePrompt';
 import { buildPersonaPrompt } from '../lib/personaPrompt';
 import { submitFalJob } from '../lib/falClient';
 import { FAL_FACE_MODEL, FAL_LORA_MODEL, buildFaceCandidatesInput, buildLoraTrainingInput } from '../lib/falRecipes';
-import { signMediaToken } from '../lib/signedMedia';
+import { mintMediaUrl } from '../lib/mediaUrls';
+import { loadOwnedPersona } from '../lib/ownership';
 
 export const personasRoute = new Hono<{ Bindings: Env; Variables: Variables }>();
-
-type AppContext = Context<{ Bindings: Env; Variables: Variables }>;
 
 personasRoute.use('*', requireAuth);
 
@@ -182,8 +181,7 @@ personasRoute.post('/personas/:id/lock-identity', async (c) => {
   }
 
   try {
-    const { token } = await signMediaToken(c.env.MEDIA_SIGNING_SECRET, candidate.id);
-    const imageUrl = `${c.env.PUBLIC_MEDIA_BASE_URL}/media/candidates/${candidate.id}?token=${token}`;
+    const imageUrl = await mintMediaUrl(c, 'candidates', candidate.id);
     const falInput = buildLoraTrainingInput(imageUrl);
     const submission = await submitFalJob(c.env.FAL_KEY, FAL_LORA_MODEL, falInput);
 
@@ -209,12 +207,3 @@ personasRoute.post('/personas/:id/lock-identity', async (c) => {
     return c.json({ error: 'Failed to start LoRA training', detail: String(err) }, 502);
   }
 });
-
-async function loadOwnedPersona(c: AppContext): Promise<PersonaRow | null> {
-  const user = c.get('user');
-  const id = c.req.param('id');
-  const dmemz = getDmemzAdmin(c.env);
-  const { data, error } = await dmemz.from('personas').select('*').eq('id', id).eq('user_id', user.id).single();
-  if (error || !data) return null;
-  return data as PersonaRow;
-}

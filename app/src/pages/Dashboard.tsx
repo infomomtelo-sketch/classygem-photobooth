@@ -4,7 +4,13 @@ import { supabase } from '../lib/supabaseClient';
 import { apiGet } from '../lib/apiClient';
 import type { Persona } from '../types';
 
-export function DashboardPage({ onDesign }: { onDesign: () => void }) {
+export function DashboardPage({
+  onDesign,
+  onOpenPersona,
+}: {
+  onDesign: () => void;
+  onOpenPersona: (personaId: string) => void;
+}) {
   const { user, signOut } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
   const [personas, setPersonas] = useState<Persona[]>([]);
@@ -32,12 +38,12 @@ export function DashboardPage({ onDesign }: { onDesign: () => void }) {
       <div className="persona-list">
         {personas.length === 0 && <p className="dashboard-note">No models yet.</p>}
         {personas.map((p) => (
-          <div key={p.id} className="persona-row">
+          <button key={p.id} type="button" className="persona-row" onClick={() => onOpenPersona(p.id)}>
             <span>
               {p.age_range} · {p.style_vibe ?? 'no vibe set'}
             </span>
             <span className="persona-status">{p.status}</span>
-          </div>
+          </button>
         ))}
       </div>
 

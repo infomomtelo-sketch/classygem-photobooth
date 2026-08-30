@@ -12,3 +12,13 @@ export function buildPersonaPrompt(persona: PersonaRow): string {
   ].filter((part): part is string => Boolean(part));
   return parts.join(', ');
 }
+
+export function buildStillPrompt(persona: PersonaRow, backgroundFragment: string, outfitPrompt: string): string {
+  const parts = [
+    buildPersonaPrompt(persona),
+    `wearing ${outfitPrompt}`,
+    backgroundFragment,
+    'full body fashion photo, editorial photography, high detail, max resolution',
+  ];
+  return parts.join(', ');
+}

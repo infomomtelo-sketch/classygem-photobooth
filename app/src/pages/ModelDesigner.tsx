@@ -4,7 +4,7 @@ import type { Candidate, JobPollResult, Persona, PersonaOptions } from '../types
 
 type Step = 'form' | 'generating' | 'picking' | 'training' | 'done';
 
-export function ModelDesignerPage({ onDone }: { onDone: () => void }) {
+export function ModelDesignerPage({ onDone }: { onDone: (personaId: string) => void }) {
   const [options, setOptions] = useState<PersonaOptions | null>(null);
   const [step, setStep] = useState<Step>('form');
   const [ageRange, setAgeRange] = useState('');
@@ -196,10 +196,10 @@ export function ModelDesignerPage({ onDone }: { onDone: () => void }) {
 
       {step === 'training' && <p className="designer-status">Training the identity LoRA — this can take a few minutes…</p>}
 
-      {step === 'done' && (
+      {step === 'done' && persona && (
         <div>
-          <p className="designer-status">Identity locked. Outfit and background generation arrives in Phase 3.</p>
-          <button onClick={onDone}>Back to dashboard</button>
+          <p className="designer-status">Identity locked.</p>
+          <button onClick={() => onDone(persona.id)}>Continue to styling →</button>
         </div>
       )}
     </div>

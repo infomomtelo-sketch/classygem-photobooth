@@ -108,9 +108,15 @@ body {
 .persona-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid #cfc4b4;
   font-size: 0.85rem;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 
 .persona-status {
@@ -208,4 +214,34 @@ body {
 .designer-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.candidate-card:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.candidate-rejected {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 3 / 4;
+  font-size: 0.7rem;
+  color: #a13a2f;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.studio-toggle {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+}
+
+.studio-final {
+  display: block;
+  max-width: 320px;
+  width: 100%;
+  margin: 1rem auto;
+  border-radius: 4px;
 }

@@ -5,4 +5,6 @@
 export const FAL_MODELS = {
   faceCandidates: 'fal-ai/flux/dev',
   loraTraining: 'fal-ai/flux-lora-fast-training',
+  stillsWithLora: 'fal-ai/flux-lora',
+  upscaler: 'fal-ai/clarity-upscaler',
 } as const;
