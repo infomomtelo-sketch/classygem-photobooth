@@ -18,10 +18,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    // If Supabase is unreachable or misconfigured, getSession() rejects
+    // rather than resolving -- caught here so `loading` still clears and
+    // the app falls through to the signed-out (landing/auth) state
+    // instead of hanging on the loading screen forever.
+    supabase.auth
+      .getSession()
+      .then(({ data }) => setSession(data.session))
+      .catch(() => setSession(null))
+      .finally(() => setLoading(false));
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
     });

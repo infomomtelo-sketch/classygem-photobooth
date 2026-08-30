@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from './context/AuthContext';
+import { LandingPage } from './pages/Landing';
 import { AuthPage } from './pages/Auth';
 import { DashboardPage } from './pages/Dashboard';
 import { ModelDesignerPage } from './pages/ModelDesigner';
@@ -17,9 +18,13 @@ type View =
 export function App() {
   const { session, loading } = useAuth();
   const [view, setView] = useState<View>({ name: 'dashboard' });
+  const [showAuth, setShowAuth] = useState(false);
 
   if (loading) return <div className="loading-screen">Loading…</div>;
-  if (!session) return <AuthPage />;
+
+  if (!session) {
+    return showAuth ? <AuthPage onBack={() => setShowAuth(false)} /> : <LandingPage onGetStarted={() => setShowAuth(true)} />;
+  }
 
   if (view.name === 'designer') {
     return <ModelDesignerPage onDone={(personaId) => setView({ name: 'studio', personaId })} />;

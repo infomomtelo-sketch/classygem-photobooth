@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600&display=swap');
+
 :root {
   --ink: #1a1714;
   --paper: #f6f1ea;
+  --display-serif: 'Fraunces', Georgia, serif;
   font-family: Georgia, 'Times New Roman', serif;
 }
 
@@ -79,6 +82,22 @@ body {
   cursor: pointer;
   color: var(--ink);
   font-family: inherit;
+}
+
+.auth-back {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b6259;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.auth-screen {
+  position: relative;
 }
 
 .auth-error {
@@ -339,4 +358,175 @@ body {
 .pack-card button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Landing page -- the one screen that gets the full editorial
+   treatment (Fraunces display serif, wide-tracked kickers, numbered
+   editorial spread). Every other screen stays plainly functional on
+   purpose; see Phase 7 notes. */
+
+.landing {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.landing-hero {
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 1.5rem;
+  gap: 1.5rem;
+}
+
+.landing-masthead {
+  font-family: var(--display-serif);
+  font-size: 0.85rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #8a7d68;
+}
+
+.landing-headline {
+  font-family: var(--display-serif);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 7vw, 5rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  max-width: 16ch;
+  margin: 0;
+}
+
+.landing-sub {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: #5c5346;
+  max-width: 40ch;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.landing-cta {
+  font-family: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 1rem 2.2rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+.landing-cta:hover {
+  background: #33291c;
+}
+
+.landing-steps,
+.landing-trust,
+.landing-pricing {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 5rem 1.5rem;
+  border-top: 1px solid #ddd0bb;
+}
+
+.landing-kicker {
+  font-family: var(--display-serif);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8a7d68;
+  margin: 0 0 2.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.landing-step-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.landing-step-list li {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 1rem;
+  align-items: baseline;
+}
+
+.landing-step-no {
+  font-family: var(--display-serif);
+  font-size: 1.4rem;
+  color: #b8a888;
+}
+
+.landing-step-list h3 {
+  font-family: var(--display-serif);
+  font-weight: 500;
+  font-size: 1.2rem;
+  margin: 0 0 0.35rem;
+}
+
+.landing-step-list p {
+  margin: 0;
+  color: #5c5346;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.landing-trust p {
+  text-align: center;
+  line-height: 1.75;
+  font-size: 1.05rem;
+  color: #3d362b;
+}
+
+.landing-pack-row {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.landing-pack {
+  text-align: center;
+}
+
+.landing-pack-price {
+  font-family: var(--display-serif);
+  font-size: 2rem;
+}
+
+.landing-pack-label {
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+.landing-pack-credits {
+  color: #8a7d68;
+  font-size: 0.8rem;
+  margin-top: 0.15rem;
+}
+
+.landing-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 5rem 1.5rem 4rem;
+  border-top: 1px solid #ddd0bb;
+}
+
+.landing-footnote {
+  font-size: 0.8rem;
+  color: #8a7d68;
+  margin: 0;
 }

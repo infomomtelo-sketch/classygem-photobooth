@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-export function AuthPage() {
+export function AuthPage({ onBack }: { onBack: () => void }) {
   const { signIn, signUp } = useAuth();
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
@@ -28,6 +28,9 @@ export function AuthPage() {
 
   return (
     <div className="auth-screen">
+      <button className="auth-back" onClick={onBack}>
+        ← Back
+      </button>
       <h1>Classygem</h1>
       <p className="auth-sub">{mode === 'signin' ? 'Sign in' : 'Create an account'}</p>
       <form onSubmit={handleSubmit}>
