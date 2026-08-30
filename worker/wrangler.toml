@@ -1,0 +1,18 @@
+name = "classygem-api"
+main = "src/index.ts"
+compatibility_date = "2024-09-25"
+
+[vars]
+# Non-secret vars. Secrets (service role keys, FAL_KEY,
+# MEDIA_SIGNING_SECRET) are set with `wrangler secret put <NAME>` and
+# must never be committed. Update these two for staging/production
+# (e.g. via a `[env.production]` block) before deploying beyond
+# local dev.
+APP_ORIGIN = "http://localhost:5173"
+PUBLIC_MEDIA_BASE_URL = "http://localhost:8787"
+
+[[r2_buckets]]
+binding = "MEDIA_BUCKET"
+bucket_name = "classygem-media"
+# Wired for Phase 3+ (stills/upscales) and Phase 5 (video). No route
+# reads or writes it yet in Phase 1.
