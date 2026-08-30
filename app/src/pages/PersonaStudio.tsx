@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { apiGet, apiPost } from '../lib/apiClient';
-import type { BackgroundPreset, JobPollResult, Persona, Still, Upscale } from '../types';
+import type { BackgroundPreset, JobPollResult, MotionPreset, Persona, Still, Upscale, Video } from '../types';
 
-type Step = 'setup' | 'rendering' | 'picking' | 'upscaling' | 'ready';
+type Step = 'setup' | 'rendering' | 'picking' | 'upscaling' | 'upscaled' | 'animating' | 'video';
 
 export function PersonaStudioPage({ personaId, onBack }: { personaId: string; onBack: () => void }) {
   const [persona, setPersona] = useState<Persona | null>(null);
   const [backgrounds, setBackgrounds] = useState<BackgroundPreset[]>([]);
+  const [motionPresets, setMotionPresets] = useState<MotionPreset[]>([]);
   const [step, setStep] = useState<Step>('setup');
   const [backgroundPresetId, setBackgroundPresetId] = useState('');
   const [useCustomBackground, setUseCustomBackground] = useState(false);
@@ -15,6 +16,8 @@ export function PersonaStudioPage({ personaId, onBack }: { personaId: string; on
   const [stills, setStills] = useState<Still[]>([]);
   const [selectedStillId, setSelectedStillId] = useState<string | null>(null);
   const [upscale, setUpscale] = useState<Upscale | null>(null);
+  const [selectedMotion, setSelectedMotion] = useState('');
+  const [video, setVideo] = useState<Video | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const pollRef = useRef<number | null>(null);
@@ -27,6 +30,12 @@ export function PersonaStudioPage({ personaId, onBack }: { personaId: string; on
       .then((r) => {
         setBackgrounds(r.backgrounds);
         if (r.backgrounds.length) setBackgroundPresetId(r.backgrounds[0].id);
+      })
+      .catch((e) => setError(String(e)));
+    apiGet<{ motionPresets: MotionPreset[] }>('/motion-presets')
+      .then((r) => {
+        setMotionPresets(r.motionPresets);
+        if (r.motionPresets.length) setSelectedMotion(r.motionPresets[0].id);
       })
       .catch((e) => setError(String(e)));
     return () => {
@@ -93,7 +102,8 @@ export function PersonaStudioPage({ personaId, onBack }: { personaId: string; on
         jobId,
         (result) => {
           if (result.upscale) setUpscale(result.upscale);
-          setStep('ready');
+          setVideo(null);
+          setStep('upscaled');
         },
         'picking'
       );
@@ -105,7 +115,31 @@ export function PersonaStudioPage({ personaId, onBack }: { personaId: string; on
     }
   }
 
-  if (!persona || !backgrounds.length) return <p className="designer-loading">Loading…</p>;
+  async function handleAnimate(e: FormEvent) {
+    e.preventDefault();
+    if (!upscale) return;
+    setError(null);
+    setBusy(true);
+    try {
+      const { jobId } = await apiPost<{ jobId: string }>(`/upscales/${upscale.id}/animate`, { motionPreset: selectedMotion });
+      setStep('animating');
+      pollJob(
+        jobId,
+        (result) => {
+          if (result.video) setVideo(result.video);
+          setStep('video');
+        },
+        'upscaled'
+      );
+    } catch (e) {
+      setError(String(e));
+      setStep('upscaled');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (!persona || !backgrounds.length || !motionPresets.length) return <p className="designer-loading">Loading…</p>;
 
   if (persona.lora_status !== 'ready') {
     return (
@@ -196,10 +230,35 @@ export function PersonaStudioPage({ personaId, onBack }: { personaId: string; on
 
       {step === 'upscaling' && <p className="designer-status">Upscaling…</p>}
 
-      {step === 'ready' && upscale && (
+      {step === 'upscaled' && upscale && (
         <div>
           <img className="studio-final" src={upscale.imageUrl} alt="Upscaled still" />
-          <p className="designer-status">Ready. Animation arrives in Phase 4.</p>
+          <form className="designer-form" onSubmit={handleAnimate}>
+            <label>
+              Motion
+              <select value={selectedMotion} onChange={(e) => setSelectedMotion(e.target.value)}>
+                {motionPresets.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button type="submit" disabled={busy}>
+              Animate
+            </button>
+          </form>
+          <button onClick={onBack}>Back to dashboard</button>
+        </div>
+      )}
+
+      {step === 'animating' && <p className="designer-status">Animating — this can take a minute or two…</p>}
+
+      {step === 'video' && video && (
+        <div>
+          <video className="studio-video" src={video.videoUrl} controls playsInline />
+          <p className="designer-status">Video ready. Library and download arrive in Phase 5.</p>
+          <button onClick={() => setStep('upscaled')}>Try another motion</button>
           <button onClick={onBack}>Back to dashboard</button>
         </div>
       )}

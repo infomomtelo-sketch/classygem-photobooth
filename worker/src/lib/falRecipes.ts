@@ -4,6 +4,7 @@ export const FAL_FACE_MODEL = FAL_MODELS.faceCandidates;
 export const FAL_LORA_MODEL = FAL_MODELS.loraTraining;
 export const FAL_STILLS_MODEL = FAL_MODELS.stillsWithLora;
 export const FAL_UPSCALE_MODEL = FAL_MODELS.upscaler;
+export const FAL_VIDEO_MODEL = FAL_MODELS.imageToVideo;
 
 export interface FaceCandidatesInput {
   prompt: string;
@@ -90,4 +91,34 @@ export interface UpscaleResult {
 export function extractUpscaledImage(result: UpscaleResult): { url: string; contentType?: string } | null {
   if (!result.image?.url) return null;
   return { url: result.image.url, contentType: result.image.content_type };
+}
+
+export interface AnimateInput {
+  prompt: string;
+  image_url: string;
+  duration: string;
+  aspect_ratio: string;
+}
+
+// Kling's fal.ai image-to-video endpoints commonly take duration as a
+// string ("5" | "10") -- verify current field names (and whether
+// aspect_ratio is even accepted alongside a fixed input image)
+// against fal.ai's docs for the exact Kling version you're pinned to.
+export function buildAnimateInput(prompt: string, imageUrl: string): AnimateInput {
+  return {
+    prompt,
+    image_url: imageUrl,
+    duration: '5',
+    aspect_ratio: '9:16',
+  };
+}
+
+export interface AnimateResult {
+  video?: { url: string; content_type?: string };
+  [key: string]: unknown;
+}
+
+export function extractVideoUrl(result: AnimateResult): { url: string; contentType?: string } | null {
+  if (!result.video?.url) return null;
+  return { url: result.video.url, contentType: result.video.content_type };
 }

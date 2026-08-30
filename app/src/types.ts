@@ -57,6 +57,21 @@ export interface Upscale {
   imageUrl: string;
 }
 
+export interface MotionPreset {
+  id: string;
+  label: string;
+  promptFragment: string;
+}
+
+export interface Video {
+  id: string;
+  persona_id: string;
+  upscale_id: string;
+  motion_preset: string;
+  status: string;
+  videoUrl: string;
+}
+
 export interface GenerationJob {
   id: string;
   status: 'queued' | 'running' | 'succeeded' | 'failed';
@@ -69,5 +84,6 @@ export interface JobPollResult {
   persona?: Persona;
   stills?: Still[];
   upscale?: Upscale;
+  video?: Video;
   error?: string;
 }

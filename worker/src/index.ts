@@ -4,8 +4,10 @@ import { healthRoute } from './routes/health';
 import { creditsRoute } from './routes/credits';
 import { optionsRoute } from './routes/options';
 import { backgroundsRoute } from './routes/backgrounds';
+import { motionPresetsRoute } from './routes/motionPresets';
 import { personasRoute } from './routes/personas';
 import { stillsRoute } from './routes/stills';
+import { videosRoute } from './routes/videos';
 import { jobsRoute } from './routes/jobs';
 import { mediaRoute } from './routes/media';
 
@@ -32,8 +34,10 @@ app.route('/', healthRoute);
 app.route('/', creditsRoute);
 app.route('/', optionsRoute);
 app.route('/', backgroundsRoute);
+app.route('/', motionPresetsRoute);
 app.route('/', personasRoute);
 app.route('/', stillsRoute);
+app.route('/', videosRoute);
 app.route('/', jobsRoute);
 app.route('/', mediaRoute);
 

@@ -7,4 +7,5 @@ export const FAL_MODELS = {
   loraTraining: 'fal-ai/flux-lora-fast-training',
   stillsWithLora: 'fal-ai/flux-lora',
   upscaler: 'fal-ai/clarity-upscaler',
+  imageToVideo: 'fal-ai/kling-video/v2.5-turbo/pro/image-to-video',
 } as const;

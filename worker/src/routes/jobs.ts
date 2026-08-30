@@ -9,12 +9,15 @@ import {
   FAL_LORA_MODEL,
   FAL_STILLS_MODEL,
   FAL_UPSCALE_MODEL,
+  FAL_VIDEO_MODEL,
   extractLoraWeightsUrl,
   extractUpscaledImage,
+  extractVideoUrl,
   type FaceCandidatesResult,
   type LoraTrainingResult,
   type StillsResult,
   type UpscaleResult,
+  type AnimateResult,
 } from '../lib/falRecipes';
 import { moderateMedia } from '../guardrails/moderation';
 import { mintMediaUrl } from '../lib/mediaUrls';
@@ -33,16 +36,19 @@ function falModelFor(jobType: string): string {
       return FAL_STILLS_MODEL;
     case 'upscale':
       return FAL_UPSCALE_MODEL;
+    case 'video_generation':
+      return FAL_VIDEO_MODEL;
     default:
       return FAL_FACE_MODEL;
   }
 }
 
-// Generation is async on fal.ai's side (LoRA training especially can
-// take minutes), so the frontend polls this until status settles.
-// Finalization -- writing results into dmemz -- only happens here,
-// the first time a poll observes COMPLETED; a later re-poll of an
-// already-succeeded job just re-reads what was already written.
+// Generation is async on fal.ai's side (LoRA training and video
+// especially can take minutes), so the frontend polls this until
+// status settles. Finalization -- writing results into dmemz -- only
+// happens here, the first time a poll observes COMPLETED; a later
+// re-poll of an already-succeeded job just re-reads what was already
+// written.
 jobsRoute.get('/jobs/:id', async (c) => {
   const user = c.get('user');
   const dmemz = getDmemzAdmin(c.env);
@@ -94,6 +100,8 @@ async function finalizeJob(c: AppContext, job: GenerationJobRow) {
       return finalizeStillGeneration(c, job);
     case 'upscale':
       return finalizeUpscale(c, job);
+    case 'video_generation':
+      return finalizeVideoGeneration(c, job);
     default:
       return finalizeFaceCandidates(c, job);
   }
@@ -119,8 +127,8 @@ async function failJob(c: AppContext, job: GenerationJobRow, message: string): P
   } else if (job.job_type === 'face_candidates' && job.persona_id) {
     await dmemz.from('personas').update({ status: 'draft', updated_at: new Date().toISOString() }).eq('id', job.persona_id);
   }
-  // still_generation / upscale failures don't need a persona rollback
-  // -- nothing else was optimistically changed for them.
+  // still_generation / upscale / video_generation failures don't need
+  // a persona rollback -- nothing else was optimistically changed.
 }
 
 async function finalizeFaceCandidates(c: AppContext, job: GenerationJobRow) {
@@ -261,6 +269,47 @@ async function finalizeUpscale(c: AppContext, job: GenerationJobRow) {
   return { job: { ...job, status: 'succeeded' }, upscale };
 }
 
+async function finalizeVideoGeneration(c: AppContext, job: GenerationJobRow) {
+  const user = c.get('user');
+  const dmemz = getDmemzAdmin(c.env);
+  const result = await getFalResult<AnimateResult>(c.env.FAL_KEY, FAL_VIDEO_MODEL, job.fal_request_id as string);
+  const video = extractVideoUrl(result);
+  if (!video) throw new Error('fal.ai animation result did not include a video URL');
+
+  const upscaleId = job.params?.upscale_id as string | undefined;
+  const motionPreset = job.params?.motion_preset as string | undefined;
+  if (!upscaleId || !motionPreset) throw new Error('Video job is missing upscale_id/motion_preset');
+
+  const moderation = await moderateMedia(c.env, { userId: user.id, subjectType: 'video', subjectId: upscaleId, mediaUrl: video.url });
+  if (!moderation.approved) throw new Error('Generated video was rejected by content guardrails');
+
+  const videoRes = await fetch(video.url);
+  if (!videoRes.ok) throw new Error('Failed to download generated video from fal.ai');
+  const bytes = await videoRes.arrayBuffer();
+  const key = `personas/${job.persona_id}/videos/${crypto.randomUUID()}.mp4`;
+  await c.env.MEDIA_BUCKET.put(key, bytes, { httpMetadata: { contentType: video.contentType ?? 'video/mp4' } });
+
+  const { data: videoRow } = await dmemz
+    .from('videos')
+    .insert({
+      persona_id: job.persona_id,
+      upscale_id: upscaleId,
+      motion_preset: motionPreset,
+      generation_job_id: job.id,
+      r2_key: key,
+      status: 'ready',
+      moderation_status: 'approved',
+    })
+    .select()
+    .single();
+
+  await dmemz.from('generation_jobs').update({ status: 'succeeded', updated_at: new Date().toISOString() }).eq('id', job.id);
+
+  const videoOut = videoRow ? { ...videoRow, videoUrl: await mintMediaUrl(c, 'videos', videoRow.id) } : null;
+
+  return { job: { ...job, status: 'succeeded' }, video: videoOut };
+}
+
 async function attachResultPayload(c: AppContext, job: GenerationJobRow) {
   const dmemz = getDmemzAdmin(c.env);
   if (job.job_type === 'face_candidates') {
@@ -285,6 +334,11 @@ async function attachResultPayload(c: AppContext, job: GenerationJobRow) {
     const { data: upscale } = await dmemz.from('upscales').select('*').eq('generation_job_id', job.id).single();
     if (!upscale) return {};
     return { upscale: { ...upscale, imageUrl: await mintMediaUrl(c, 'upscales', upscale.id) } };
+  }
+  if (job.job_type === 'video_generation') {
+    const { data: video } = await dmemz.from('videos').select('*').eq('generation_job_id', job.id).single();
+    if (!video) return {};
+    return { video: { ...video, videoUrl: await mintMediaUrl(c, 'videos', video.id) } };
   }
   return {};
 }

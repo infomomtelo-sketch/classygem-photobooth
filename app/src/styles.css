@@ -238,7 +238,8 @@ body {
   gap: 0.5rem !important;
 }
 
-.studio-final {
+.studio-final,
+.studio-video {
   display: block;
   max-width: 320px;
   width: 100%;
